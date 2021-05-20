@@ -20,7 +20,8 @@ function connect()
 }
 
 
-function addRecord($dbConnection, $tableName, $values) {
+function addRecord($dbConnection, $tableName, $values)
+{
     if (!is_a($dbConnection, "mysqli")) {
         return false;
     }
@@ -39,21 +40,8 @@ function addRecord($dbConnection, $tableName, $values) {
         } else {
             $paramsString .= "?,";
         }
-
-        switch(gettype($value)) {
-            case "int":
-                $paramsTypeString .= "i";
-                break;
-            case "float":
-                $paramsTypeString .= "d";
-                break;
-            case "string":
-                $paramsTypeString .= "s";
-                break;
-            default:
-                $paramsTypeString .= "d";
-                break;
-        }
+        $paramsTypeString .= getTypeBind($value);
+        
     } 
     $query = "INSERT INTO " . $tableName . "(" . $columns . ")" . " VALUES (" . $paramsString . ")";
     $preparedQuery = mysqli_prepare($dbConnection, $query);
@@ -61,7 +49,8 @@ function addRecord($dbConnection, $tableName, $values) {
     return mysqli_stmt_execute($preparedQuery);
 }
 
-function getById($dbConnection, $tableName, $id, $idColumnName = "id") {
+function getById($dbConnection, $tableName, $id, $idColumnName = "id")
+{
     if (!is_a($dbConnection, "mysqli")) {
         return false;
     }
@@ -83,7 +72,8 @@ function getById($dbConnection, $tableName, $id, $idColumnName = "id") {
     return false;
 }
 
-function getNElements($dbConnection, $tableName, $numberOfElements, $offset = 0) {
+function getNElements($dbConnection, $tableName, $numberOfElements, $offset = 0)
+{
     if (!is_a($dbConnection, "mysqli")) {
         return false;
     }
@@ -92,12 +82,66 @@ function getNElements($dbConnection, $tableName, $numberOfElements, $offset = 0)
     $query = "SELECT * FROM " . $tableName . " LIMIT ?, ?";
     if ($preparedQuery = mysqli_prepare($dbConnection, $query)) {
         if (mysqli_stmt_bind_param($preparedQuery, "ii", $offset, $numberOfElements)) {
-            if (mysqli_stmt_execute($preparedQuery)){
+            if (mysqli_stmt_execute($preparedQuery)) {
                 $result = mysqli_stmt_get_result($preparedQuery);
                 return mysqli_fetch_all($result);
             }
         }
     }
     return false;
-
 }
+
+function updateRecord($dbConnection, $tableName, $newValues, $condition)
+{
+    if (!is_a($dbConnection, "mysqli")) {
+        return false;
+    }
+    $columnsString = "";
+    $valuesString = "";
+    $counter = 0;
+    $elemQuantity = count($newValues);
+    foreach ($newValues as $key => $value) {
+        $counter ++;
+        $columnsString .= preg_replace('/[^0-9a-zA-Z$_]/', '', $key) . "= ?";
+        $valuesString .= getTypeBind($value);
+        if ($elemQuantity !== $counter) {
+            $columnsString .= ", ";
+        }
+    }
+    mysqli_report(MYSQLI_REPORT_ALL);
+    $tableName = preg_replace('/[^0-9a-zA-Z$_]/', '', $tableName);
+    /*Change condition to ID only?*/
+    $query = "UPDATE " . $tableName . " SET " . $columnsString . " WHERE " . $condition;
+    echo $query;
+    if ($preparedQuery = mysqli_prepare($dbConnection, $query)) {
+        if (mysqli_stmt_bind_param($preparedQuery, $valuesString, ...array_values($newValues))) {
+                return mysqli_stmt_execute($preparedQuery);
+        }
+    }
+}
+
+function getTypeBind($variable)
+{
+    switch (gettype($variable)) {
+        case "int":
+            return "i";
+        case "float":
+            return "d";
+        case "string":
+            return "s";
+        default:
+            return "b";
+    }
+}
+
+function deleteRecord($dbConnection, $tableName, $condition)
+{
+    if (!is_a($dbConnection, "mysqli")) {
+        return false;
+    }
+    $tableName = preg_replace('/[^0-9a-zA-Z$_]/', '', $tableName);
+    $query = "DELETE FROM " . $tableName . " WHERE " . $condition;
+    /* Prepare and delete only by ID? */
+    return mysqli_query($dbConnection, $query);
+}
+
