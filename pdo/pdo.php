@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * Function connects to database using information from config.ini file near function location
+ *
+ * @return false|PDO return false if connection was unsuccessfull, or Database Handle otherwise
+ */
 function connect()
 {
     $config = parse_ini_file(__DIR__ . "/config.ini", true);
@@ -21,7 +25,12 @@ function connect()
 
     return $dbh;
 }
-
+/**
+ * Populates created db by test values (creates tables and inputs values in them)
+ *
+ * @param PDO $dbh Database Handle
+ * @return bool true if no errors and false otherwise
+ */
 function populateTestDB($dbh)
 {
     if (!is_a($dbh, "PDO")) {
@@ -37,6 +46,15 @@ function populateTestDB($dbh)
     return false;
 }
 
+/**
+ * Returns 1 row from database with provided ID
+ *
+ * @param PDO $dbh Database handle
+ * @param string $tableName Name of a target table in db
+ * @param int $id ID of row
+ * @param string $idColumnName column name with Primary KEY - ID
+ * @return array|false Array with row or false in case of error
+ */
 function getById($dbh, $tableName, $id, $idColumnName = "id")
 {
     if (!is_a($dbh, "PDO")) {
@@ -55,6 +73,16 @@ function getById($dbh, $tableName, $id, $idColumnName = "id")
     return false;
 }
 
+
+/**
+ * Function returns $numberOfElements rows from specified table with optional $offset
+ *
+ * @param PDO $dbh Database Handler
+ * @param string $tableName Name of a target table in db
+ * @param int $numberOfElements number of rows 
+ * @param integer $offset offset from top results
+ * @return array|false returns array of results or false in case of error
+ */
 function getNElements($dbh, $tableName, $numberOfElements, $offset = 0)
 {
     if (!is_a($dbh, "PDO")) {
@@ -71,11 +99,24 @@ function getNElements($dbh, $tableName, $numberOfElements, $offset = 0)
     }
     return false;
 }
-
+/**
+ * Clears input for TableName and ColumnName params in other functions
+ *
+ * @param string $value String to clear
+ * @return string Cleared input string
+ */
 function clearInput($value) {
     return preg_replace('/[^0-9a-zA-Z$_]/', '', $value);
 }
-
+/**
+ * Update record in database
+ *
+ * @param PDO $dbh Database Handler
+ * @param string $tableName Name of a target table in db
+ * @param array $newValues Associative Array of new values ["column_name" => "new_column_value"]
+ * @param string $condition sql WHERE condition
+ * @return bool returns true if query is successfull and false otherwise
+ */
 function updateRecord($dbh, $tableName, $newValues, $condition)
 {
     if (!is_a($dbh, "PDO")) {
@@ -105,7 +146,14 @@ function updateRecord($dbh, $tableName, $newValues, $condition)
     }
     return false;
 }
-
+/**
+ * Binds type to PDO prepared query
+ *
+ * @param PDOStatement $preparedQuery result of PDO::prepare
+ * @param mixed $value value to type bind
+ * @param int $numberOfParam Number of parameter in query 
+ * @return null
+ */
 function bindType($preparedQuery, $value, $numberOfParam)
 {
     if (is_int($value)) {
@@ -122,7 +170,14 @@ function bindType($preparedQuery, $value, $numberOfParam)
     $preparedQuery->bindValue($numberOfParam, $value, $param);
     return null;
 }
-
+/**
+ * Deletes records from database $tableName 
+ *
+ * @param PDO $dbh Database Handler
+ * @param string $tableName Name of a target table in db
+ * @param string $condition SQL WHERE condition
+ * @return void
+ */
 function deleteRecord($dbh, $tableName, $condition)
 {
     if (!is_a($dbh, "PDO")) {
@@ -136,7 +191,14 @@ function deleteRecord($dbh, $tableName, $condition)
     }
     return false;
 }
-
+/**
+ * Add new record to database
+ *
+ * @param PDO $dbh Database Handler
+ * @param string $tableName Name of a target table in db
+ * @param array $values Associative array of values: ["column_name" => "new_value"];
+ * @return bool return true if insert successful and false otherwise
+ */
 function addRecord($dbh, $tableName, $values)
 {
     $tableName = clearInput($tableName);
