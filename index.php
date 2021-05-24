@@ -16,7 +16,6 @@ if (!empty($_POST)) {
     if (isset($_POST["repopulateDb"])) {
         populateTestDB($dbConnection);
     }
-
     if (!isset($_POST["tableName"])) {
         $error = true;
         $result = "Error: No table name specified"; 
@@ -35,7 +34,7 @@ if (!empty($_POST)) {
         }
     } elseif ($_POST["select"] == "getNElements" && !$error) {
         if (isset($_POST["offset"])) {
-            $result = getNElements($dbConnection, htmlspecialchars($_POST["tableName"]), (int) htmlspecialchars($_POST["limit"]), (int) htmlspecialchars($_POST["limit"]));
+            $result = getNElements($dbConnection, htmlspecialchars($_POST["tableName"]), (int) htmlspecialchars($_POST["limit"]), (int) htmlspecialchars($_POST["offset"]));
         } else {
             $result = getNElements($dbConnection, htmlspecialchars($_POST["tableName"]), (int) htmlspecialchars($_POST["limit"]));
         }
@@ -46,10 +45,7 @@ if (!empty($_POST)) {
             $insertArray[htmlspecialchars($_POST['columnNameInsert' . $counter])] = htmlspecialchars($_POST['columnValueInsert' . $counter]);
             $counter++;
         }
-        
         $result = addRecord($dbConnection, htmlspecialchars($_POST["tableName"]), $insertArray);
-        
-
     } elseif ($_POST["select"] == "updateValues" && !$error) {
         $counter = 1;
         $insertArray = [];
@@ -65,7 +61,7 @@ if (!empty($_POST)) {
             $result = updateRecord($dbConnection, htmlspecialchars($_POST["tableName"]), $insertArray, htmlspecialchars($_POST["conditionUpdate"]));
         }
     } elseif ($_POST["select"] == "deleteValues" && !$error) {
-        if (!isset($_POST["conditionInsert"])) {
+        if (!isset($_POST["conditionDelete"])) {
             $result = "Error: No Where condition";
             $error = true;
         } 

@@ -114,10 +114,10 @@ function getById($dbConnection, $tableName, $id, $idColumnName = "id")
     if (empty($tableName) || empty($idColumnName) || empty($id)) {
         return false;
     }
-    $query = "SELECT * FROM " . $tableName . " WHERE " . $idColumnName ." = ?";
+    $query = "SELECT * FROM " . $tableName . " WHERE " . $idColumnName . " = ?";
     if ($preparedQuery = mysqli_prepare($dbConnection, $query)) {
         if (mysqli_stmt_bind_param($preparedQuery, "i", $id)) {
-            if (mysqli_stmt_execute($preparedQuery)){
+            if (mysqli_stmt_execute($preparedQuery)) {
                 $result = mysqli_stmt_get_result($preparedQuery);
                 return mysqli_fetch_all($result);
             }
@@ -170,14 +170,14 @@ function updateRecord($dbConnection, $tableName, $newValues, $condition)
     $counter = 0;
     $elemQuantity = count($newValues);
     foreach ($newValues as $key => $value) {
-        $counter ++;
+        $counter++;
         $columnsString .= preg_replace('/[^0-9a-zA-Z$_]/', '', $key) . "= ?";
         $valuesString .= getTypeBind($value);
         if ($elemQuantity !== $counter) {
             $columnsString .= ", ";
         }
     }
-    mysqli_report(MYSQLI_REPORT_ALL);
+    //mysqli_report(MYSQLI_REPORT_ALL);
     $tableName = preg_replace('/[^0-9a-zA-Z$_]/', '', $tableName);
     $query = "UPDATE " . $tableName . " SET " . $columnsString . " WHERE " . $condition;
     echo $query;

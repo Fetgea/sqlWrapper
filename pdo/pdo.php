@@ -22,7 +22,6 @@ function connect()
         return false;
     }
     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
     return $dbh;
 }
 /**
@@ -63,7 +62,7 @@ function getById($dbh, $tableName, $id, $idColumnName = "id")
     $tableName = clearInput($tableName);
     $idColumnName = clearInput($idColumnName);
     $query = "SELECT * FROM " . $tableName . " WHERE " . $idColumnName . " =  ?";
-    
+
     $preparedQuery = $dbh->prepare($query);
     var_dump($query);
     $preparedQuery->bindValue(1, $id, PDO::PARAM_INT);
@@ -72,8 +71,6 @@ function getById($dbh, $tableName, $id, $idColumnName = "id")
     }
     return false;
 }
-
-
 /**
  * Function returns $numberOfElements rows from specified table with optional $offset
  *
@@ -90,8 +87,9 @@ function getNElements($dbh, $tableName, $numberOfElements, $offset = 0)
     }
     $tableName = clearInput($tableName);
     $query = "SELECT * FROM " . $tableName . " LIMIT ?, ?";
+    echo $query;
     $preparedQuery = $dbh->prepare($query);
-    
+
     $preparedQuery->bindValue(1, $offset, PDO::PARAM_INT);
     $preparedQuery->bindValue(2, $numberOfElements, PDO::PARAM_INT);
     if ($preparedQuery->execute()) {
@@ -105,7 +103,8 @@ function getNElements($dbh, $tableName, $numberOfElements, $offset = 0)
  * @param string $value String to clear
  * @return string Cleared input string
  */
-function clearInput($value) {
+function clearInput($value)
+{
     return preg_replace('/[^0-9a-zA-Z$_]/', '', $value);
 }
 /**
@@ -202,9 +201,9 @@ function deleteRecord($dbh, $tableName, $condition)
 function addRecord($dbh, $tableName, $values)
 {
     $tableName = clearInput($tableName);
-    
-    $columns = "";// preg_replace('/[^0-9a-zA-Z$_,]/', '', implode(",", array_keys($values)));
-    
+
+    $columns = ""; // preg_replace('/[^0-9a-zA-Z$_,]/', '', implode(",", array_keys($values)));
+
     $paramsString = "";
     $counter = 0;
     $columnsNumber = count($values);
@@ -230,5 +229,4 @@ function addRecord($dbh, $tableName, $values)
         }
     }
     return false;
-    
 }
