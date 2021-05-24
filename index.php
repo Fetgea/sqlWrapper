@@ -71,7 +71,28 @@ if (!empty($_POST)) {
     } else {
         die();
     }
-    
+    if (is_array($result)) {
+        $resultString = "<table border='0'><tbody><tr>";
+        $headers = array_keys($result[0]);
+        foreach ($headers as $header) {
+            $resultString .= "<th>" . $header . "</th>";
+        }
+        $resultString .= "</tr>";
+        foreach ($result as $row) {
+            $resultString .= "<tr>";
+            foreach ($row as $value) {
+                $resultString .= "<td>" . htmlspecialchars($value) . "</td>";
+            }
+            $resultString .= "</tr>";
+        }
+        $resultString .= "</tbody></table>";
+    } elseif ($result === true) {
+        $resultString = "OK";
+    } elseif ($result === false) {
+        $resultString = "Not OK";
+    } elseif (is_string($result)) {
+        $resultString = $result;
+    }
     $dbConnection = null;
 }
 
@@ -167,11 +188,12 @@ if (!empty($_POST)) {
             </div>
             <button type="submit">Send</button>
         </form>
-        <pre>
+        <div>
         <? if(isset($result)) {
-            print_r($result);
+            //print_r($result);
+            print_r($resultString);
             }?>
-        </pre>
+        </div>
     </main>
 <script src="js/script.js"></script>
 
