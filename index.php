@@ -5,12 +5,13 @@ if (!empty($_POST)) {
     if($_POST["libraryType"] === "pdo") {
         require_once __DIR__ . "/pdo/pdo.php";
         $dbConnection = connect();
-        if (isset($_POST["repopulateDb"])) {
-            populateTestDB($dbConnection);
-        }
     } elseif ($_POST["libraryType"] === "mysqli") {
         require_once __DIR__ . "/mysqli/mysqli_version.php";
         $dbConnection = connect();
+    }
+
+    if (isset($_POST["repopulateDb"])) {
+        populateTestDB($dbConnection);
     }
 
     if (!isset($_POST["tableName"])) {
@@ -99,7 +100,7 @@ if (!empty($_POST)) {
                     <input type="radio" name="libraryType" value="mysqli">
                 </label>
                 <label>
-                    Repopulate SQLlite DB
+                    Recreate Test DB
                     <input type="checkbox" name="repopulateDb" value="1">
                 </label>
             </div>

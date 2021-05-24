@@ -22,6 +22,42 @@ function connect()
     }
     return $mysqli;
 }
+/**
+ * Creates tables in opened database and populates them with data
+ *
+ * @param mysqli $dbConnection Database Handler
+ * @return bool True if no errors returned by MySql server in queries execution and false otherwise 
+ */
+function populateTestDB($dbConnection)
+{
+    $queriesCreateDB = fopen(__DIR__ . "/ddl.sql", "rb");
+    if ($queriesCreateDB) {
+        while (!feof($queriesCreateDB)) {
+            $query = stream_get_line($queriesCreateDB, 4096, ";");
+            if (empty($query)) {
+                continue;
+            }
+            if (!mysqli_query($dbConnection, $query)) {
+                return false;
+            }
+        }
+    }
+
+    $queriesPopDB = fopen(__DIR__ . "/populate_db.sql", "rb");
+    if ($queriesPopDB) {
+        while (!feof($queriesPopDB)) {
+            $query = stream_get_line($queriesPopDB, 4096, ";");
+            if (empty($query)) {
+                continue;
+            }
+            if (!mysqli_query($dbConnection, $query)) {
+                echo $query;
+                return false;
+            }
+        }
+    }
+    return true;
+}
 
 /**
  * Add new record to database
