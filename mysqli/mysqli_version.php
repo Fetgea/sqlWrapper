@@ -51,7 +51,6 @@ function populateTestDB($dbConnection)
                 continue;
             }
             if (!mysqli_query($dbConnection, $query)) {
-                echo $query;
                 return false;
             }
         }
@@ -180,7 +179,6 @@ function updateRecord($dbConnection, $tableName, $newValues, $condition)
     //mysqli_report(MYSQLI_REPORT_ALL);
     $tableName = preg_replace('/[^0-9a-zA-Z$_]/', '', $tableName);
     $query = "UPDATE " . $tableName . " SET " . $columnsString . " WHERE " . $condition;
-    echo $query;
     if ($preparedQuery = mysqli_prepare($dbConnection, $query)) {
         if (mysqli_stmt_bind_param($preparedQuery, $valuesString, ...array_values($newValues))) {
                 return mysqli_stmt_execute($preparedQuery);

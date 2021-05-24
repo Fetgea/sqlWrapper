@@ -64,7 +64,6 @@ function getById($dbh, $tableName, $id, $idColumnName = "id")
     $query = "SELECT * FROM " . $tableName . " WHERE " . $idColumnName . " =  ?";
 
     $preparedQuery = $dbh->prepare($query);
-    var_dump($query);
     $preparedQuery->bindValue(1, $id, PDO::PARAM_INT);
     if ($preparedQuery->execute()) {
         return $preparedQuery->fetchAll(PDO::FETCH_ASSOC);
@@ -87,7 +86,6 @@ function getNElements($dbh, $tableName, $numberOfElements, $offset = 0)
     }
     $tableName = clearInput($tableName);
     $query = "SELECT * FROM " . $tableName . " LIMIT ?, ?";
-    echo $query;
     $preparedQuery = $dbh->prepare($query);
 
     $preparedQuery->bindValue(1, $offset, PDO::PARAM_INT);
@@ -133,7 +131,6 @@ function updateRecord($dbh, $tableName, $newValues, $condition)
         }
     }
     $query = "UPDATE " . $tableName . " SET " . $columnsString . " WHERE " . $condition;
-    var_dump($query);
     $preparedQuery = $dbh->prepare($query);
     $counter = 0;
     foreach ($newValues as $value) {
@@ -217,7 +214,6 @@ function addRecord($dbh, $tableName, $values)
         }
     }
     $query = "INSERT INTO " . $tableName . " (" . $columns . ")" . " VALUES (" . $paramsString . ")";
-    var_dump($query);
     if ($preparedQuery = $dbh->prepare($query)) {
         $counter = 0;
         foreach ($values as $value) {
