@@ -73,26 +73,27 @@ function addRecord($dbConnection, $tableName, $values)
         return false;
     }
     $tableName = preg_replace('/[^0-9a-zA-Z$_]/', '', $tableName);
-
-    mysqli_report(MYSQLI_REPORT_ALL);
-
     $columns = preg_replace('/[^0-9a-zA-Z$_,]/', '', implode(",", array_keys($values)));
-    
     $paramsString = "";
     $paramsTypeString = "";
+    $numberOfElements = count($values);
+    $counter = 0;
     foreach ($values as $key => $value) {
-        
-        if ($key === array_key_last($values)) {
+        $counter++;
+        if ($counter === $numberOfElements) {
             $paramsString .= "?";
         } else {
             $paramsString .= "?,";
         }
         $paramsTypeString .= getTypeBind($value);
-    } 
+    }
     $query = "INSERT INTO " . $tableName . "(" . $columns . ")" . " VALUES (" . $paramsString . ")";
-    $preparedQuery = mysqli_prepare($dbConnection, $query);
-    mysqli_stmt_bind_param($preparedQuery, $paramsTypeString, ...array_values($values));
-    return mysqli_stmt_execute($preparedQuery);
+    if ($preparedQuery = mysqli_prepare($dbConnection, $query)) {
+        if (mysqli_stmt_bind_param($preparedQuery, $paramsTypeString, ...array_values($values))) {
+            return mysqli_stmt_execute($preparedQuery);
+        }
+    }
+    return false;
 }
 /**
  * Returns 1 row from database with provided ID
@@ -108,7 +109,6 @@ function getById($dbConnection, $tableName, $id, $idColumnName = "id")
     if (!is_a($dbConnection, "mysqli")) {
         return false;
     }
-    //mysqli_report(MYSQLI_REPORT_ALL);
     $tableName = preg_replace('/[^0-9a-zA-Z$_]/', '', $tableName);
     $idColumnName = preg_replace('/[^0-9a-zA-Z$_]/', '', $idColumnName);
     if (empty($tableName) || empty($idColumnName) || empty($id)) {
@@ -139,7 +139,6 @@ function getNElements($dbConnection, $tableName, $numberOfElements, $offset = 0)
     if (!is_a($dbConnection, "mysqli")) {
         return false;
     }
-    //mysqli_report(MYSQLI_REPORT_ALL);
     $tableName = preg_replace('/[^0-9a-zA-Z$_]/', '', $tableName);
     $query = "SELECT * FROM " . $tableName . " LIMIT ?, ?";
     if ($preparedQuery = mysqli_prepare($dbConnection, $query)) {
@@ -155,7 +154,7 @@ function getNElements($dbConnection, $tableName, $numberOfElements, $offset = 0)
 /**
  * Update record in database
  *
- * @param PDO $dbConnection Database Handler
+ * @param mysqli $dbConnection Database Handler
  * @param string $tableName Name of a target table in db
  * @param array $newValues Associative Array of new values ["column_name" => "new_column_value"]
  * @param string $condition sql WHERE condition
@@ -180,7 +179,6 @@ function updateRecord($dbConnection, $tableName, $newValues, $condition)
     }
     mysqli_report(MYSQLI_REPORT_ALL);
     $tableName = preg_replace('/[^0-9a-zA-Z$_]/', '', $tableName);
-    /*Change condition to ID only?*/
     $query = "UPDATE " . $tableName . " SET " . $columnsString . " WHERE " . $condition;
     echo $query;
     if ($preparedQuery = mysqli_prepare($dbConnection, $query)) {
@@ -188,8 +186,14 @@ function updateRecord($dbConnection, $tableName, $newValues, $condition)
                 return mysqli_stmt_execute($preparedQuery);
         }
     }
+    return false;
 }
-
+/**
+ * returns bind type for provided Variable
+ *
+ * @param mixed $variable Variable needded to type bind
+ * @return string type binding string for provided variable
+ */
 function getTypeBind($variable)
 {
     switch (gettype($variable)) {
@@ -219,6 +223,5 @@ function deleteRecord($dbConnection, $tableName, $condition)
     $tableName = preg_replace('/[^0-9a-zA-Z$_]/', '', $tableName);
     $query = "DELETE FROM " . $tableName . " WHERE " . $condition;
 
-    /* Prepare and delete only by ID? */
     return mysqli_query($dbConnection, $query);
 }

@@ -9,7 +9,10 @@ if (!empty($_POST)) {
         require_once __DIR__ . "/mysqli/mysqli_version.php";
         $dbConnection = connect();
     }
-
+    if (!$dbConnection) {
+        $error = true;
+        $result = "Error: Error connecting to database";
+    }
     if (isset($_POST["repopulateDb"])) {
         populateTestDB($dbConnection);
     }
@@ -88,8 +91,6 @@ if (!empty($_POST)) {
 <body>
     <main>
         <h1>TEST PAGE!</h1>
-
-        <?=print_r($_POST);?>
         <form name="sqlibraryForm" action="/index.php" method="POST">
             <div class="dbVariants">
                 <label>PDO
