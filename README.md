@@ -20,27 +20,27 @@
 Функция для подключения к базе данных. Данные для подключения должны находится в файле config.ini в папке используемого варианта библиотеки. Возвращает объект подключения при удачном подключении.
 
 Пример config.ini для MySQLi версии библиотеки(лежит в папке mysqli)
-`
+```sh
 [database]
 hostname = 127.0.0.1
 username = mysql
 password = mysql
 database = db_test
-`
+```
 
 Пример config.ini для PDO+Sqlite
-`
+```sh
 [database]
 dsn = sqlite:test1.sqlite
-`
+```
 ### populateTestDB
 Создает таблицы в подключенной базе данных и заполняет их тестовыми данными, если таблицы уже существуют предварительно удаляет их.
 На вход принимает объект подключения к базе данных (PDO, MySQLi)
 
 Пример вызова:
-`
+```sh
 populateTestDB($dbConnection);
-`
+```
 
 ### addRecord
 Добавляет новую запись в определенную таблицу базы.
@@ -48,18 +48,17 @@ $dbConnection - объект подключения к базе данных (PD
 $tableName - строка с названием таблицы в которую производится запись.
 $insertArray - массив значений вида:
 
-`
+```sh
 [
     "column_name" => "value",
     "column_name" => "value"
 ]
-`
+```
 
 Пример вызова 
-`
+```sh
 $result = addRecord($dbConnection, $tableName, $insertArray);
-
-`
+```
 
 ### getById
 Возвращает 1 запись из базы данных, id которой совпадает с указанным в параметрах вызова.
@@ -68,10 +67,9 @@ $result = addRecord($dbConnection, $tableName, $insertArray);
 - $id - id строки, которую нужно получить из таблицы
 - $idTableName - Имя столбца в котором хранится id (не обязательный параметр, если не указан будет искать в столбце "id")
 Пример вызова:
-`
+```sh
 $result = getById($dbConnection, $tableName, $id, $idTableName);
-
-`
+```
 
 ### getNElements
 Возвращает $limit элементов из таблицы базы данных, со сдвигом $offset (если не указан - равен 0)
@@ -81,35 +79,32 @@ $result = getById($dbConnection, $tableName, $id, $idTableName);
 - $offset смещение от начала таблицы с которого будут возращены $limit элементов
 
 Пример вызова:
-`
+```sh
 $result = getNElements($dbConnection, $tableName, $limit, $offset);
+```
 
-`
 ### updateRecord
 Обновляет записи в таблице которые подходят под $condition, значениями $value.
 - $dbConnection - объект подключения к базе данных (PDO, MySQLi)
 - $tableName - строка с названием таблицы из которой будут получены строки
 - $insertArray новые значения для столбцов, массив значений вида:
-`
+```sh
 [
     "column_name" => "value",
     "column_name" => "value"
 ]
-`
+```
 - $condition условие отбора строк для обновления данных, используется синтаксис выражений WHERE из SQL
-
-`
+```sh
 $result = updateRecord($dbConnection, $tableName, $insertArray, $condition);
+```
 
-`
 
 ### deleteRecord
 Удаляет записи из таблицы, если они удовлетворяют условию в $condition.
 - $dbConnection - объект подключения к базе данных (PDO, MySQLi)
 - $tableName - строка с названием таблицы из которой будут получены строки
 - $condition условие отбора строк для удаления данных, используется синтаксис выражений WHERE из SQL
-
-
-`
+```sh
 $result = deleteRecord($dbConnection, htmlspecialchars($_POST["tableName"]), htmlspecialchars($_POST["conditionDelete"]));
-`
+```
