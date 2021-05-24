@@ -2,7 +2,7 @@
 
 if (!empty($_POST)) {
     $error = false;
-    if($_POST["libraryType"] === "pdo") {
+    if ($_POST["libraryType"] === "pdo") {
         require_once __DIR__ . "/pdo/pdo.php";
         $dbConnection = connect();
     } elseif ($_POST["libraryType"] === "mysqli") {
@@ -189,7 +189,7 @@ if (!empty($_POST)) {
             <button type="submit">Send</button>
         </form>
         <div>
-        <? if(isset($result)) {
+        <? if (isset($result)) {
             //print_r($result);
             print_r($resultString);
             }?>

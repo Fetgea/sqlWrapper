@@ -181,7 +181,7 @@ function updateRecord($dbConnection, $tableName, $newValues, $condition)
     $query = "UPDATE " . $tableName . " SET " . $columnsString . " WHERE " . $condition;
     if ($preparedQuery = mysqli_prepare($dbConnection, $query)) {
         if (mysqli_stmt_bind_param($preparedQuery, $valuesString, ...array_values($newValues))) {
-                return mysqli_stmt_execute($preparedQuery);
+            return mysqli_stmt_execute($preparedQuery);
         }
     }
     return false;
