@@ -108,7 +108,7 @@ if (!empty($_POST)) {
 <body>
     <main>
         <h1>TEST PAGE!</h1>
-        <form name="sqlibraryForm" action="<?=$_SERVER['PHP_SELF']?>" method="POST">
+        <form name="sqlibraryForm" action="<?=htmlentities($_SERVER['PHP_SELF'])?>" method="POST">
             <div class="dbVariants">
                 <label>PDO
                     <input type="radio" name="libraryType" value="pdo" checked="true">
