@@ -97,7 +97,6 @@ if (!empty($_POST)) {
     $dbConnection = null;
 }
 
-
 ?>
 <!doctype html>
 <html lang="ru">
@@ -109,13 +108,12 @@ if (!empty($_POST)) {
 <body>
     <main>
         <h1>TEST PAGE!</h1>
-        <form name="sqlibraryForm" action="index.php" method="POST">
+        <form name="sqlibraryForm" action="<?=$_SERVER['PHP_SELF']?>" method="POST">
             <div class="dbVariants">
                 <label>PDO
                     <input type="radio" name="libraryType" value="pdo" checked="true">
                 </label>
-                
-                <label >MYSQLI
+                <label>MYSQLI
                     <input type="radio" name="libraryType" value="mysqli">
                 </label>
                 <label>
@@ -132,11 +130,9 @@ if (!empty($_POST)) {
                     <option value="deleteValues">Delete Record</option>
                 </select>
             </label>
-            
             <label>Table Name
                 <input type="text" name="tableName" required>
             </label>
-            
             <div class="formInputs getById">
                 <label>Element ID
                     <input type="text" name="rowId">
@@ -145,7 +141,6 @@ if (!empty($_POST)) {
                     <input type="text" name="idTableName">
                 </label>
             </div>
-
             <div class="formInputs getNElements">
                 <label>Number of returned Rows
                     <input type="text" name="limit" disabled required>
@@ -154,7 +149,6 @@ if (!empty($_POST)) {
                     <input type="text" name="offset" disabled>
                 </label>
             </div>
-
             <div class="formInputs insertValues">
                 <div class="grid">
                     <label>Name of column to insert value
@@ -166,7 +160,6 @@ if (!empty($_POST)) {
                     <button id="insertButton" class="insertButton" type="button" onclick="addInputsInsert()">Add Fields</button>
                 </div>
             </div>
-
             <div class="formInputs updateValues">
                 <div class="grid">
                     <label>Name of updated Column
@@ -181,7 +174,6 @@ if (!empty($_POST)) {
                     <button type="button" class="updateButton" onclick="addInputsDelete()">Add Fields</button>
                 </div>
             </div>
-
             <div class="formInputs deleteValues">
                 <label>Condition to Where clause
                     <input type="text" name="conditionDelete" disabled>
@@ -197,9 +189,7 @@ if (!empty($_POST)) {
         </div>
     </main>
 <script src="js/script.js"></script>
-
 </body>
-
 </html>
 
 
