@@ -69,7 +69,8 @@ if (!empty($_POST)) {
             $result = deleteRecord($dbConnection, htmlspecialchars($_POST["tableName"]), htmlspecialchars($_POST["conditionDelete"]));
         }
     } else {
-        die();
+        $error = true;
+        $result = "Error: Method not selected";
     }
     if (is_array($result)) {
         $resultString = "<table border='0'><tbody><tr>";
@@ -108,7 +109,7 @@ if (!empty($_POST)) {
 <body>
     <main>
         <h1>TEST PAGE!</h1>
-        <form name="sqlibraryForm" action="/index.php" method="POST">
+        <form name="sqlibraryForm" action="index.php" method="POST">
             <div class="dbVariants">
                 <label>PDO
                     <input type="radio" name="libraryType" value="pdo" checked="true">
