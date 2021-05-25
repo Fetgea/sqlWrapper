@@ -7,19 +7,43 @@
 function connect()
 {
     $config = parse_ini_file(__DIR__ . "/config.ini", true);
-    if (!isset($config["database"]) || empty($config["database"])) {
+    if ((!isset($config["database"]) || empty($config["database"])) && (!isset($config["database"]["type"]) || empty($config["database"]["type"]))) {
         return false;
     }
-    $configReq = ["dsn"];
+    switch (strtolower($config["database"]["type"])) {
+        case "mysql":
+            $configReq = ["hostname", "username", "password", "database"];
+            break;
+        case "sqlite":
+            $configReq = ["database"];
+            break;
+        default: 
+            return false;
+    }
     foreach ($configReq as $configOption) {
         if (!isset($config["database"][$configOption]) || empty($config["database"][$configOption])) {
             return false;
         }
     }
-    try {
-        $dbh = new PDO($config["database"]["dsn"]);
-    } catch (PDOException $e) {
-        return false;
+    switch (strtolower($config["database"]["type"])) {
+        case "mysql":
+            $connectionString = "mysql:host=" . $config["database"]["hostname"] . ";dbname=" . $config["database"]["database"];
+            try {
+                $dbh = new PDO($connectionString, $config["database"]["username"], $config["database"]["password"]);
+            } catch (PDOException $e) {
+                return false;
+            }
+            break;
+        case "sqlite":
+            $connectionString = "sqlite:" . $config["database"]["database"];
+            try {
+                $dbh = new PDO($connectionString, $config["database"]["username"]["password"]);
+            } catch (PDOException $e) {
+                return false;
+            }
+            break;
+        default: 
+            return false;
     }
     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     return $dbh;
@@ -35,9 +59,20 @@ function populateTestDB($dbh)
     if (!is_a($dbh, "PDO")) {
         return false;
     }
-    $sql = file_get_contents(__DIR__ . "/ddl.sql");
+    $config = parse_ini_file(__DIR__ . "/config.ini", true);
+    if ((!isset($config["database"]) || empty($config["database"])) && (!isset($config["database"]["type"]) || empty($config["database"]["type"]))) {
+        return false;
+    }
+    if (strtolower($config["database"]["type"]) === "mysql") {
+        $sql = file_get_contents(__DIR__ . "/ddl_mysql.sql");
+        $sqlValues = file_get_contents(__DIR__ . "/populate_db_mysql.sql");
+    } elseif (strtolower($config["database"]["type"] === "sqlite")) {
+        $sql = file_get_contents(__DIR__ . "/ddl.sql");
+        $sqlValues = file_get_contents(__DIR__ . "/populate_db.sql");
+    } else {
+        return false;
+    }
     $query = $dbh->exec($sql);
-    $sqlValues = file_get_contents(__DIR__ . "/populate_db.sql");
     $queryValues = $dbh->exec($sqlValues);
     if ($queryValues) {
         return true;
@@ -64,7 +99,7 @@ function getById($dbh, $tableName, $id, $idColumnName = "id")
     $query = "SELECT * FROM " . $tableName . " WHERE " . $idColumnName . " =  ?";
 
     $preparedQuery = $dbh->prepare($query);
-    $preparedQuery->bindValue(1, $id, PDO::PARAM_INT);
+    $preparedQuery->bindValue(1, (int) $id, PDO::PARAM_INT);
     if ($preparedQuery->execute()) {
         return $preparedQuery->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -88,8 +123,8 @@ function getNElements($dbh, $tableName, $numberOfElements, $offset = 0)
     $query = "SELECT * FROM " . $tableName . " LIMIT ?, ?";
     $preparedQuery = $dbh->prepare($query);
 
-    $preparedQuery->bindValue(1, $offset, PDO::PARAM_INT);
-    $preparedQuery->bindValue(2, $numberOfElements, PDO::PARAM_INT);
+    $preparedQuery->bindValue(1, (int) $offset, PDO::PARAM_INT);
+    $preparedQuery->bindValue(2, (int) $numberOfElements, PDO::PARAM_INT);
     if ($preparedQuery->execute()) {
         return $preparedQuery->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -172,7 +207,7 @@ function bindType($preparedQuery, $value, $numberOfParam)
  * @param PDO $dbh Database Handler
  * @param string $tableName Name of a target table in db
  * @param string $condition SQL WHERE condition
- * @return void
+ * @return bool return true in case successfull delete and false otherwise
  */
 function deleteRecord($dbh, $tableName, $condition)
 {
@@ -198,9 +233,7 @@ function deleteRecord($dbh, $tableName, $condition)
 function addRecord($dbh, $tableName, $values)
 {
     $tableName = clearInput($tableName);
-
-    $columns = ""; // preg_replace('/[^0-9a-zA-Z$_,]/', '', implode(",", array_keys($values)));
-
+    $columns = "";
     $paramsString = "";
     $counter = 0;
     $columnsNumber = count($values);
