@@ -237,7 +237,7 @@ function deleteRecord($dbConnection, $tableName, $condition)
             return mysqli_stmt_execute($preparedQuery);
         }
     }
-    return mysqli_query($dbConnection, $query);
+    return mysqli_query($dbConnection, $query["query"]);
     
 }
 
