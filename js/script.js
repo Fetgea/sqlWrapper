@@ -37,10 +37,10 @@ function addInputsInsert() {
     }
 }
 function addInputsUpdate() {
-    let labelBlocks = document.querySelectorAll(".formInputs.updateValues label");
+    let labelBlocks = document.querySelectorAll(".formInputs.updateValues .grid label");
     console.log(labelBlocks);
-    let label = document.getElementById("inputHere")   
-    inputNameNumber = ((labelBlocks.length - 1) / 2) + 1;
+    let label = document.getElementById("updateButton")   
+    inputNameNumber = (labelBlocks.length / 2) + 1;
     for (let i = 0; i < 2; i++) {
         labelClone = labelBlocks[i].cloneNode(true); 
         input = labelClone.querySelectorAll("input");
@@ -53,11 +53,32 @@ function addInputsUpdate() {
         label.parentNode.insertBefore(labelClone, label);
     }
 }
+
+function addInputsUpdateWhere() {
+    let labelBlocks = document.querySelectorAll(".formInputs.updateValues .grid-3-col label");
+    console.log(labelBlocks);
+    let label = document.getElementById("updateWhereButton");
+    inputNameNumber = (labelBlocks.length / 3) + 1;
+    for (let i = 0; i < 3; i++) {
+        labelClone = labelBlocks[i].cloneNode(true); 
+        input = labelClone.querySelectorAll("input");
+        let inputName = "conditionUpdate";
+        if (i == 1) {
+            inputName = "operationUpdate";
+        }
+        if (i == 2) {
+            inputName = "valueUpdate"
+        }
+        input[0].setAttribute("name", inputName + inputNameNumber);
+        input[0].value = "";
+        label.parentNode.insertBefore(labelClone, label);
+    }
+}
 function insertAfter(referenceNode, newNode) {
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
 }
 function addInputsDelete() {
-    let labelBlocks = document.querySelectorAll(".formInputs.deleteValues label");
+    let labelBlocks = document.querySelectorAll(".formInputs.deleteValues .grid-3-col label ");
     console.log(labelBlocks);
     let label = document.getElementById("deleteButton")   
     inputNameNumber = (labelBlocks.length / 3) + 1;

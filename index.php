@@ -53,22 +53,37 @@ if (!empty($_POST)) {
             $insertArray[htmlspecialchars($_POST['columnNameUpdate' . $counter])] = htmlspecialchars($_POST['columnValueUpdate' . $counter]);
             $counter++;
         }
-        if (!isset($_POST["conditionUpdate"])) {
+        
+        if (!isset($_POST["conditionUpdate1"]) || !isset($_POST["operationUpdate1"]) || !isset($_POST["valueUpdate1"]) || !isset($_POST["logicalOperatorUpdate"])) {
             $result = "Error: No Where condition";
             $error = true;
+        }
+        $counterSecond = 1;
+
+        $whereArray = [
+            "logicalOperator" => $_POST["logicalOperatorUpdate"]
+        ];
+
+        while (isset($_POST['conditionUpdate' . $counterSecond]) && !empty($_POST['conditionUpdate' . $counterSecond]) && isset($_POST['operationUpdate' . $counterSecond]) && !empty($_POST['operationUpdate' . $counterSecond]) && isset($_POST['valueUpdate' . $counterSecond]) && !empty($_POST['valueUpdate' . $counterSecond])) {
+            $whereArray["expressions"][] = [htmlspecialchars($_POST["conditionUpdate" . $counterSecond]), $_POST["operationUpdate" . $counterSecond], $_POST["valueUpdate" . $counterSecond]];
+            $counterSecond++;
         }
         if (!$error) {
-            $result = updateRecord($dbConnection, htmlspecialchars($_POST["tableName"]), $insertArray, htmlspecialchars($_POST["conditionUpdate"]));
+            $result = updateRecord($dbConnection, htmlspecialchars($_POST["tableName"]), $insertArray, $whereArray);
         }
     } elseif ($_POST["select"] == "deleteValues" && !$error) {
-        if (!isset($_POST["conditionDelete1"]) || !isset($_POST["operationDelete1"]) || !isset($_POST["valueDelete1"])) {
+        if (!isset($_POST["conditionDelete1"]) || !isset($_POST["operationDelete1"]) || !isset($_POST["valueDelete1"]) || !isset($_POST["logicalOperator"])) {
             $result = "Error: No Where condition";
             $error = true;
         }
+
         $counter = 1;
-        $whereArray = [];
+        $whereArray = [
+            "logicalOperator" => $_POST["logicalOperator"]
+        ];
+        
         while (isset($_POST["conditionDelete" . $counter]) && isset($_POST["operationDelete" . $counter]) && isset($_POST["valueDelete" . $counter])) {
-            $whereArray[] = [htmlspecialchars($_POST["conditionDelete" . $counter]), $_POST["operationDelete" . $counter], $_POST["valueDelete" . $counter]];
+            $whereArray["expressions"][] = [htmlspecialchars($_POST["conditionDelete" . $counter]), $_POST["operationDelete" . $counter], $_POST["valueDelete" . $counter]];
             $counter++;
         }
         if (!$error) {
@@ -176,14 +191,41 @@ if (!empty($_POST)) {
                     <label>New Value for column
                         <input type="text" name="columnValueUpdate1" disabled>
                     </label>
-                    <label id="inputHere">Condition to WHERE clause
-                        <input type="text" name="conditionUpdate" disabled> 
+                    <button id="updateButton" type="button" class="updateButton" onclick="addInputsUpdate()">Add Fields</button>
+                </div>
+                <fieldset class="logicalOperators">
+                    <legend> Logical Operator </legend>
+                    <label>AND
+                        <input type="radio" name="logicalOperatorUpdate" value="and" checked="true">
                     </label>
-                    <button type="button" class="updateButton" onclick="addInputsUpdate()">Add Fields</button>
+                    <label>OR
+                        <input type="radio" name="logicalOperatorUpdate" value="or">
+                    </label>
+                </fieldset>
+                <div class="grid-3-col">
+                    <label>Column Name
+                        <input type="text" name="conditionUpdate1" disabled>
+                    </label>
+                    <label>Operation
+                        <input type="text" name="operationUpdate1" disabled>
+                    </label>
+                    <label>Value
+                        <input type="text" name="valueUpdate1" disabled>
+                    </label>
+                    <button id="updateWhereButton" type="button" class="deleteButton" onclick="addInputsUpdateWhere()">Add Where Fields</button>
                 </div>
             </div>
             <div class="formInputs deleteValues">
-                <div class="grid-3-col">
+            <fieldset class="logicalOperators">
+                <legend> Logical Operator </legend>
+                <label>AND
+                    <input type="radio" name="logicalOperator" value="and" checked="true">
+                </label>
+                <label>OR
+                    <input type="radio" name="logicalOperator" value="or">
+                </label>
+            </fieldset>
+                <div class="grid-3-col"> 
                     <label>Column Name
                         <input type="text" name="conditionDelete1" disabled>
                     </label>
