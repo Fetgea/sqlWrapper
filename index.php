@@ -61,18 +61,24 @@ if (!empty($_POST)) {
             $result = updateRecord($dbConnection, htmlspecialchars($_POST["tableName"]), $insertArray, htmlspecialchars($_POST["conditionUpdate"]));
         }
     } elseif ($_POST["select"] == "deleteValues" && !$error) {
-        if (!isset($_POST["conditionDelete"])) {
+        if (!isset($_POST["conditionDelete1"]) || !isset($_POST["operationDelete1"]) || !isset($_POST["valueDelete1"])) {
             $result = "Error: No Where condition";
             $error = true;
-        } 
+        }
+        $counter = 1;
+        $whereArray = [];
+        while (isset($_POST["conditionDelete" . $counter]) && isset($_POST["operationDelete" . $counter]) && isset($_POST["valueDelete" . $counter])) {
+            $whereArray[] = [htmlspecialchars($_POST["conditionDelete" . $counter]), $_POST["operationDelete" . $counter], $_POST["valueDelete" . $counter]];
+            $counter++;
+        }
         if (!$error) {
-            $result = deleteRecord($dbConnection, htmlspecialchars($_POST["tableName"]), htmlspecialchars($_POST["conditionDelete"]));
+            $result = deleteRecord($dbConnection, htmlspecialchars($_POST["tableName"]), $whereArray);
         }
     } else {
         $error = true;
         $result = "Error: Method not selected";
     }
-    if (is_array($result)) {
+    if (is_array($result) && !empty($result)) {
         $resultString = "<table border='0'><tbody><tr>";
         $headers = array_keys($result[0]);
         foreach ($headers as $header) {
@@ -93,6 +99,8 @@ if (!empty($_POST)) {
         $resultString = "Not OK";
     } elseif (is_string($result)) {
         $resultString = $result;
+    } elseif (empty($result)) {
+        $resultString = "No results matched the query";
     }
     $dbConnection = null;
 }
@@ -171,13 +179,22 @@ if (!empty($_POST)) {
                     <label id="inputHere">Condition to WHERE clause
                         <input type="text" name="conditionUpdate" disabled> 
                     </label>
-                    <button type="button" class="updateButton" onclick="addInputsDelete()">Add Fields</button>
+                    <button type="button" class="updateButton" onclick="addInputsUpdate()">Add Fields</button>
                 </div>
             </div>
             <div class="formInputs deleteValues">
-                <label>Condition to Where clause
-                    <input type="text" name="conditionDelete" disabled>
-                </label>
+                <div class="grid-3-col">
+                    <label>Column Name
+                        <input type="text" name="conditionDelete1" disabled>
+                    </label>
+                    <label>Operation
+                        <input type="text" name="operationDelete1" disabled>
+                    </label>
+                    <label>Value
+                        <input type="text" name="valueDelete1" disabled>
+                    </label>
+                    <button id="deleteButton" type="button" class="deleteButton" onclick="addInputsDelete()">Add Where Fields</button>
+                </div>
             </div>
             <button type="submit">Send</button>
         </form>

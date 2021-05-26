@@ -36,7 +36,7 @@ function addInputsInsert() {
         button.parentNode.insertBefore(labelClone, button);
     }
 }
-function addInputsDelete() {
+function addInputsUpdate() {
     let labelBlocks = document.querySelectorAll(".formInputs.updateValues label");
     console.log(labelBlocks);
     let label = document.getElementById("inputHere")   
@@ -56,4 +56,22 @@ function addInputsDelete() {
 function insertAfter(referenceNode, newNode) {
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
 }
-  
+function addInputsDelete() {
+    let labelBlocks = document.querySelectorAll(".formInputs.deleteValues label");
+    console.log(labelBlocks);
+    let label = document.getElementById("deleteButton")   
+    inputNameNumber = (labelBlocks.length / 3) + 1;
+    for (let i = 0; i < 3; i++) {
+        labelClone = labelBlocks[i].cloneNode(true); 
+        input = labelClone.querySelectorAll("input");
+        let inputName = "conditionDelete";
+        if (i == 1) {
+            inputName = "operationDelete";
+        } else if (i == 2) {
+            inputName = "valueDelete";
+        }
+        input[0].setAttribute("name", inputName + inputNameNumber);
+        input[0].value = "";
+        label.parentNode.insertBefore(labelClone, label);
+    }
+}
