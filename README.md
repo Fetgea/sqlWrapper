@@ -133,21 +133,21 @@ if ($connection = connect()) {
         "prod_price" => "3.49",
         "prod_desc" => "complete with bean bag worms with which to feed it"
     ];
-	$result = addRecord($connection, "products", $insertArray); // bool(true);
-	$getNElements = getNElements($connection, "products", 3, 2);
-	$updateValues = [
+    $result = addRecord($connection, "products", $insertArray); // bool(true);
+    $getNElements = getNElements($connection, "products", 3, 2);
+    $updateValues = [
         "prod_name" => "UPDATED VALUE",
         "prod_price" => "23.123"
     ];
-	$condition = [
+    $condition = [
         "logicalOperator" => "or",
         "expressions" => [
             ["prod_id", "=", "2"]
         ]
     ];
-	$updateRecord = updateRecord($connection, "products",
-	$updateValues,"prod_id = 2"); // bool(true)
-	
-	$delete = deleteRecord($connection, "products", "prod_id = 11"); //bool(true)
+    $updateRecord = updateRecord($connection, "products",
+    $updateValues,"prod_id = 2"); // bool(true)
+
+    $delete = deleteRecord($connection, "products", "prod_id = 11"); //bool(true)
 }
 ```
