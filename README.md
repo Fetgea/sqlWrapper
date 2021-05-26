@@ -109,3 +109,45 @@ $result = updateRecord($dbConnection, $tableName, $insertArray, $condition);
 ```sh
 $result = deleteRecord($dbConnection, htmlspecialchars($_POST["tableName"]), htmlspecialchars($_POST["conditionDelete"]));
 ```
+
+## Пример работы.
+
+
+```php
+if ($connection = connect()) {
+
+    $getById = getById($connection, "products", 4, "prod_id"); 
+}
+	
+```
+$getById :
+
+|prod_id| vend_id | prod_name | prod_price | prod_desc |
+|-------|---------|-----------|------------|-----------|
+|   4   |   DLL01 | Fish bean bag toy| 3.4900| Fish bean bag toy, complete with bean bag worms with which to feed it|
+```php
+if ($connection = connect()) {
+    $insertArray = [
+        "vend_id" => "DLL01",
+        "prod_name" => "Fish bean bag toy",
+        "prod_price" => "3.49",
+        "prod_desc" => "complete with bean bag worms with which to feed it"
+    ];
+	$result = addRecord($connection, "products", $insertArray); // bool(true);
+	$getNElements = getNElements($connection, "products", 3, 2);
+	$updateValues = [
+        "prod_name" => "UPDATED VALUE",
+        "prod_price" => "23.123"
+    ];
+	$condition = [
+        "logicalOperator" => "or",
+        "expressions" => [
+            ["prod_id", "=", "2"]
+        ]
+    ];
+	$updateRecord = updateRecord($connection, "products",
+	$updateValues,"prod_id = 2"); // bool(true)
+	
+	$delete = deleteRecord($connection, "products", "prod_id = 11"); //bool(true)
+}
+```
