@@ -241,7 +241,15 @@ function deleteRecord($dbConnection, $tableName, $condition)
     
 }
 
-
+/**
+ * Parses condition expressions array, checks for allowed operators and clears column names
+ *
+ * @param array $condition array of conditions formatted like: [
+ *                                                                  ["column_name","operator", "column_value"],
+ *                                                                  ["column_name","operator", "column_value"],
+ *                                                              ]
+ * @return array Array with values and string ready to input into stmt query string
+ */
 function parseWhere($condition) {
 
     if (is_array($condition)) {
@@ -262,7 +270,12 @@ function parseWhere($condition) {
     }
     return false;   
 }
-
+/**
+ * Checks if supplied operator is in whitelist of operators
+ *
+ * @param string $operation string with operation type
+ * @return false|string returns false if operator is not in whitelist and supplied string oyherwise
+ */
 function checkOperation($operation)
 {
     $operation = trim($operation);
@@ -272,7 +285,23 @@ function checkOperation($operation)
     }
     return $operation;
 }
-
+/**
+ * Function adds WHERE condition to supplied query, using $condition array 
+ *
+ * @param string $query Query to which WHERE is added
+ * @param array $condition Array of conditions 
+ * 
+ * [ "logicalOperator" => "logicalOperator" //"and" or "or"
+ *   "expressions" => [
+*                       ["column_name","operator", "column_value"],
+*                       ["column_name","operator", "column_value"],
+*                      ]
+ * ]
+ * @return array returns array [
+ * "query" => query with added WHERE clause ready to STMT,
+ * "whereValues" => values for WHERE conditions
+ * ]
+ */
 function addWhereQuery($query, $condition) {
     $query .= " WHERE ";
     if (isset($condition["logicalOperator"]) && strtolower($condition["logicalOperator"]) === "and") {
@@ -299,7 +328,12 @@ function addWhereQuery($query, $condition) {
     }
     return ["query" => $query, "whereValues" => $whereValues];
 }
-
+/**
+ * Clears input for TableName and ColumnName params in other functions
+ *
+ * @param string $value String to clear
+ * @return string Cleared input string
+ */
 function clearInput($value)
 {
     return preg_replace('/[^0-9a-zA-Z$_]/', '', $value);
