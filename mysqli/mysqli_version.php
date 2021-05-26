@@ -178,9 +178,16 @@ function updateRecord($dbConnection, $tableName, $newValues, $condition)
     }
     //mysqli_report(MYSQLI_REPORT_ALL);
     $tableName = preg_replace('/[^0-9a-zA-Z$_]/', '', $tableName);
-    $query = "UPDATE " . $tableName . " SET " . $columnsString . " WHERE " . $condition;
-    if ($preparedQuery = mysqli_prepare($dbConnection, $query)) {
-        if (mysqli_stmt_bind_param($preparedQuery, $valuesString, ...array_values($newValues))) {
+    $query = "UPDATE " . $tableName . " SET " . $columnsString;
+    $query = addWhereQuery($query, $condition);
+    if ($query === false) {
+        return false;
+    }
+    foreach ($query["whereValues"] as $whereValue) {
+        $valuesString .= getTypeBind($whereValue);
+    }
+    if ($preparedQuery = mysqli_prepare($dbConnection, $query["query"])) {
+        if (mysqli_stmt_bind_param($preparedQuery, $valuesString, ...array_values($newValues), ...$query["whereValues"])) {
             return mysqli_stmt_execute($preparedQuery);
         }
     }
@@ -219,7 +226,81 @@ function deleteRecord($dbConnection, $tableName, $condition)
         return false;
     }
     $tableName = preg_replace('/[^0-9a-zA-Z$_]/', '', $tableName);
-    $query = "DELETE FROM " . $tableName . " WHERE " . $condition;
-
+    $query = "DELETE FROM " . $tableName;
+    $query = addWhereQuery($query, $condition);
+    $valuesString = "";
+    foreach ($query["whereValues"] as $whereValue) {
+        $valuesString .= getTypeBind($whereValue);
+    }
+    if ($preparedQuery = mysqli_prepare($dbConnection, $query["query"])) {
+        if (mysqli_stmt_bind_param($preparedQuery, $valuesString, ...$query["whereValues"])) {
+            return mysqli_stmt_execute($preparedQuery);
+        }
+    }
     return mysqli_query($dbConnection, $query);
+    
+}
+
+
+function parseWhere($condition) {
+
+    if (is_array($condition)) {
+        $returnArray = [];
+        $whereString = "";
+        foreach ($condition as $where) {
+            if (!isset($where[0]) || !isset($where[1]) || !isset($where[2])) {
+                return false;
+            }
+            if ($operation = checkOperation($where[1])) {
+                $whereString = clearInput(trim($where[0])) . $operation . "?";
+                $returnArray[] = [$whereString, $where[2]];
+            } else {
+                return false;
+            }
+        }
+        return $returnArray;
+    }
+    return false;   
+}
+
+function checkOperation($operation)
+{
+    $operation = trim($operation);
+    $regex = "/^(=|<>|!=|<|<=|>|>=)$/";
+    if (preg_match($regex, $operation) === false) {
+        return false;
+    }
+    return $operation;
+}
+
+function addWhereQuery($query, $condition) {
+    $query .= " WHERE ";
+    if (isset($condition["logicalOperator"]) && strtolower($condition["logicalOperator"]) === "and") {
+        $glue = "and";
+    } elseif (isset($condition["logicalOperator"]) && strtolower($condition["logicalOperator"]) === "or") {
+        $glue = "or";
+    } else {
+        return false;
+    }
+    $conditionParsed = parseWhere($condition["expressions"]);
+    if ($conditionParsed === false) {
+        return false;
+    }
+    $counter = 0;
+    $arrayCount = count($conditionParsed);
+    $whereValues = [];
+    foreach ($conditionParsed as $whereCondition) {
+        $query .= $whereCondition[0];
+        $counter++;
+        if ($counter !== $arrayCount) {
+            $query .= " {$glue} ";
+        }
+        $whereValues[] = $whereCondition[1];
+    }
+    return ["query" => $query, "whereValues" => $whereValues];
+}
+
+function clearInput($value)
+{
+    return preg_replace('/[^0-9a-zA-Z$_]/', '', $value);
 }

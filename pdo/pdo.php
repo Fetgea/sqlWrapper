@@ -298,11 +298,6 @@ function parseWhere($condition) {
     return false;   
 }
 
-/*[
-    ["ID", "=", "2"],
-    ["vend_id], "=", "BSE"] 
-]*/
-
 function checkOperation($operation)
 {
     $operation = trim($operation);
